@@ -19,7 +19,7 @@ enum Command {
     CatFile {
         #[clap(short = 'p')]
         pretty_print: bool,
-
+        #[clap()]
         object_hash: String,
     },
 }
@@ -35,6 +35,11 @@ fn main() {
             fs::write(".git/HEAD", "ref: refs/heads/main\n").unwrap();
             println!("Initialized git directory")
         }
-        Command::CatFile { pretty_print } => todo!(),
+        Command::CatFile {
+            pretty_print,
+            object_hash,
+        } => {
+            println!("{} {}", pretty_print, object_hash);
+        }
     }
 }
