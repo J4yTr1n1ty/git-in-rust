@@ -15,11 +15,13 @@ struct Args {
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    #[clap(about = "Initializes a git repository in the current directory")]
     Init,
+    #[clap(about = "Prints out git objects")]
     CatFile {
         #[clap(short = 'p')]
         pretty_print: bool,
-        #[clap()]
+
         object_hash: String,
     },
 }

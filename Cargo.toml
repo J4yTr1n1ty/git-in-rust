@@ -5,9 +5,9 @@
 #
 # When updating this file, make sure to run `cargo build` to ensure that `Cargo.lock` is updated too.
 [package]
-name = "git-starter-rust"
+name = "codecrafters-git-rust"
 version = "0.1.0"
-authors = ["Codecrafters <hello@codecrafters.io>"]
+authors = ["Jay <jay@projectchaos.ch>"]
 edition = "2021"
 
 [dependencies]
