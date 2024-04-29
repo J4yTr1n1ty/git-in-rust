@@ -7,7 +7,7 @@ use clap::Parser;
 use clap::Subcommand;
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version = "0.0.1", about = "My own Implementation of (some of) the features of git", long_about = None)]
 struct Args {
     #[command(subcommand)]
     command: Command,
