@@ -16,6 +16,12 @@ struct Args {
 #[derive(Debug, Subcommand)]
 enum Command {
     Init,
+    CatFile {
+        #[clap(short = 'p')]
+        pretty_print: bool,
+
+        object_hash: String,
+    },
 }
 
 fn main() {
@@ -29,5 +35,6 @@ fn main() {
             fs::write(".git/HEAD", "ref: refs/heads/main\n").unwrap();
             println!("Initialized git directory")
         }
+        Command::CatFile { pretty_print } => todo!(),
     }
 }
