@@ -103,21 +103,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "codecrafters-git-rust"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bytes",
- "clap",
- "flate2",
- "hex",
- "reqwest",
- "sha1",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -307,6 +292,21 @@ checksum = "bff49e947297f3312447abdca79f45f4738097cc82b06e72054d2223f601f1b9"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "git-starter-rust"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "clap",
+ "flate2",
+ "hex",
+ "reqwest",
+ "sha1",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
