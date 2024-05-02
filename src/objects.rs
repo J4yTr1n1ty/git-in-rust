@@ -4,6 +4,7 @@ pub enum FileType {
     SYMLINK = 120000,
 }
 
+#[derive(Debug)]
 pub struct Tree {
     pub entries: Vec<TreeEntry>,
 }
@@ -16,8 +17,9 @@ impl Tree {
     }
 }
 
+#[derive(Debug)]
 pub struct TreeEntry {
-    pub r#type: FileType,
+    pub mode: String,
     pub object_name: String,
     pub object_hash: String,
 }

@@ -7,7 +7,7 @@ use std::{
 use sha1::{Digest, Sha1};
 
 use crate::{
-    objects::{Tree, TreeEntry},
+    objects::{FileType, Tree, TreeEntry},
     utils,
 };
 
@@ -68,28 +68,56 @@ pub fn hash_object(file_path: &str, write: bool) {
 pub fn list_tree(tree_hash: &str, names_only: bool) {
     let file_path = utils::get_object_path_by_hash(tree_hash);
 
-    let decompressed_string = utils::get_object_contents(file_path);
+    let decompressed_content = utils::get_object_contents_as_bytes(file_path);
 
-    let lines = decompressed_string.lines();
-    let tree = Tree::new();
-    let mut index = 0;
-    for line in lines {
-        if index == 0 {
-            continue;
-        }
-        let parts: Vec<&str> = line.split('\0').collect();
-        if parts.len() != 2 {
-            panic!("Malformed Tree Object");
-        }
+    let mut tree: Tree = Tree::new();
 
-        let entry_start: Vec<&str> = parts[0].split_whitespace().collect();
+    // Parse the header
+    let header_end = decompressed_content
+        .iter()
+        .position(|&b| b == b'\0')
+        .ok_or("Header not found")
+        .unwrap();
+    let (header, entries) = decompressed_content.split_at(header_end + 1);
+    // let header_str = std::str::from_utf8(&header[..header_end]).unwrap();
+
+    // Parse the entries
+    let mut entries_iter = entries.split(|&b| b == b'\0');
+    while let Some(entry) = entries_iter.next() {
+        if entry.is_empty() {
+            break;
+        }
+        let mode_end = entry
+            .iter()
+            .position(|&b| b == b' ')
+            .ok_or("Mode not found")
+            .unwrap();
+        let (mode_bytes, entry_rest) = entry.split_at(mode_end);
+        let mode = std::str::from_utf8(&mode_bytes).unwrap();
+        let name_end = entry_rest
+            .iter()
+            .position(|&b| b == b'\0')
+            .ok_or("Name not found")
+            .unwrap();
+        let (name_bytes, hash_bytes) = entry_rest.split_at(name_end);
+        let name = std::str::from_utf8(&name_bytes[1..]).unwrap();
+        let hash = hex::encode(hash_bytes);
 
         tree.entries.push(TreeEntry {
-            r#type: todo!(),
-            object_name: entry_start[1].to_string(),
-            object_hash: parts[1].to_string(),
-        });
+            mode: mode.to_string(),
+            object_name: name.to_string(),
+            object_hash: hash,
+        })
+    }
 
-        index += 1;
+    for entry in tree.entries {
+        if names_only {
+            println!("{}", entry.object_name);
+        } else {
+            println!(
+                "{} {}\t{}",
+                entry.mode, entry.object_hash, entry.object_name
+            );
+        }
     }
 }

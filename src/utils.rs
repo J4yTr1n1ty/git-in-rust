@@ -2,6 +2,7 @@ use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
 use std::env;
+use std::error::Error;
 use std::fs::{self, File, OpenOptions};
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
@@ -35,14 +36,23 @@ pub fn get_object_path_by_hash(hash: &str) -> PathBuf {
 }
 
 pub fn get_object_contents(path: PathBuf) -> String {
+    let content = get_object_contents_as_bytes(path);
+
+    // decompress bytes
+    let decompressed_content = decompress(content);
+
+    return std::str::from_utf8(&decompressed_content)
+        .expect("Unable to convert to UTF-8 String.")
+        .to_string();
+}
+
+pub fn get_object_contents_as_bytes(path: PathBuf) -> Vec<u8> {
     // read the file as bytes
     let mut file = File::open(&path).unwrap();
     let mut content = Vec::new();
     file.read_to_end(&mut content).unwrap();
-    // decompress bytes
-    let decompressed_string = decompress(content);
 
-    return decompressed_string;
+    return content;
 }
 
 pub fn write_object_file(hex_hash: &String, content: Vec<u8>) {
@@ -98,13 +108,13 @@ pub fn find_git_root() -> Option<String> {
     }
 }
 
-pub fn decompress(content: Vec<u8>) -> String {
+pub fn decompress(content: Vec<u8>) -> Vec<u8> {
     let cursor = std::io::Cursor::new(content);
 
-    // Now we can use GzDecoder with the Cursor
     let mut d = ZlibDecoder::new(cursor);
-    let mut s = String::new();
-    d.read_to_string(&mut s).unwrap();
+    let mut s = Vec::new();
+    d.read_to_end(&mut s).unwrap();
+
     return s;
 }
 
