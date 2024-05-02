@@ -6,6 +6,8 @@ use std::path::Path;
 
 use clap::Parser;
 use clap::Subcommand;
+use flate2::read::GzDecoder;
+use std::io::prelude::*;
 
 #[derive(Parser, Debug)]
 #[command(version = "0.0.1", about = "My own Implementation of (some of) the features of git", long_about = None)]
@@ -62,7 +64,7 @@ fn main() {
             }
             // Get the Path to the folder in which the object file lies. Also check if that
             // directory eixsts.
-            let object_folder_str = format!("{root_folder}/.git/{folder}");
+            let object_folder_str = format!("{root_folder}/.git/objects/{folder}");
             let object_folder = Path::new(&object_folder_str);
             if !object_folder.exists() {
                 panic!("Object folder does not exist. Object Hash ist most likely wrong.")
@@ -72,10 +74,14 @@ fn main() {
 
             println!(
                 "Path to file: {}",
-                final_file_path.into_os_string().into_string().unwrap()
+                final_file_path.clone().into_os_string().to_string_lossy()
             );
             // read the file as bytes
+            let content =
+                fs::read_to_string(final_file_path).expect("Unable to read file contents.");
             // decompress bytes
+            let decompressed_string = decompress(content);
+            println!("Decompressed Input: {}", decompressed_string);
             // parse bytes
         }
     }
@@ -100,4 +106,11 @@ fn find_git_root() -> Option<String> {
             None => return None, // Reached the root of the filesystem without finding a .git directory
         }
     }
+}
+
+fn decompress(content: String) -> String {
+    let mut d = GzDecoder::new(content.as_bytes());
+    let mut s = String::new();
+    d.read_to_string(&mut s).unwrap();
+    return s;
 }
