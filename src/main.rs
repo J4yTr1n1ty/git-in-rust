@@ -1,12 +1,7 @@
 use std::fs;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
-use std::path::PathBuf;
 
 use clap::Parser;
 use clap::Subcommand;
-use sha1::{Digest, Sha1};
 
 mod commands;
 mod objects;
