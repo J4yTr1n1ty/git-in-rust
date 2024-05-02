@@ -3,7 +3,6 @@ use std::env;
 #[allow(unused_imports)]
 use std::fs;
 use std::fs::File;
-use std::io::{stdout, Write};
 use std::path::Path;
 
 use clap::Parser;
@@ -92,7 +91,7 @@ fn cat_file_pretty_print(object_hash: &str) {
         panic!("Malformed object file.");
     }
 
-    println!("{}", parts[1]);
+    print!("{}", parts[1]);
 }
 
 fn find_git_root() -> Option<String> {
