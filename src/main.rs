@@ -33,7 +33,7 @@ enum Command {
         object_hash: String,
     },
     #[clap(about = "Hashes a given File")]
-    HashFile {
+    HashObject {
         #[clap(short = 'w')]
         write: bool,
 
@@ -62,8 +62,8 @@ fn main() {
 
             cat_file_pretty_print(&object_hash)
         }
-        Command::HashFile { write, file_path } => {
-            hash_file(&file_path, write);
+        Command::HashObject { write, file_path } => {
+            hash_object(&file_path, write);
         }
     }
 }
@@ -108,7 +108,7 @@ fn cat_file_pretty_print(object_hash: &str) {
     print!("{}", parts[1]);
 }
 
-fn hash_file(file_path: &str, write: bool) {
+fn hash_object(file_path: &str, write: bool) {
     // Get Content of File
     let path = Path::new(file_path);
     if !path.exists() {
