@@ -204,7 +204,7 @@ fn decompress(content: Vec<u8>) -> String {
 fn compress(content: Vec<u8>) -> Vec<u8> {
     let mut e = ZlibEncoder::new(Vec::new(), Compression::default());
 
-    e.write_all(&to_compress).unwrap();
+    e.write_all(&content).unwrap();
 
     return e.finish().unwrap();
 }
