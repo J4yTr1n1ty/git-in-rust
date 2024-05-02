@@ -63,11 +63,7 @@ fn main() {
             cat_file_pretty_print(&object_hash)
         }
         Command::HashFile { write, file_path } => {
-            if !write {
-                todo!()
-            }
-
-            hash_file(&file_path);
+            hash_file(&file_path, write);
         }
     }
 }
@@ -112,7 +108,7 @@ fn cat_file_pretty_print(object_hash: &str) {
     print!("{}", parts[1]);
 }
 
-fn hash_file(file_path: &str) {
+fn hash_file(file_path: &str, write: bool) {
     // Get Content of File
     let path = Path::new(file_path);
     if !path.exists() {
@@ -128,6 +124,15 @@ fn hash_file(file_path: &str) {
 
     let file_hash = hasher.finalize();
     let hex_hash = hex::encode(file_hash);
+
+    if write {
+        write_object_file(&hex_hash, content);
+    }
+
+    println!("{}", &hex_hash);
+}
+
+fn write_object_file(hex_hash: &String, content: Vec<u8>) {
     // Compress file contents
     let compressed_file_contents = compress(content);
     // Create folder with first two characters of the hash
@@ -155,8 +160,6 @@ fn hash_file(file_path: &str) {
     }
 
     let _ = object_file.unwrap().write_all(&compressed_file_contents);
-
-    println!("{}", hex_hash);
 }
 
 fn find_git_root() -> Option<String> {
