@@ -6,7 +6,7 @@ use std::fs::{self, File, OpenOptions};
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 
-pub fn get_object_folder_by_hash(hash: &str) -> PathBuf {
+pub fn get_object_path_by_hash(hash: &str) -> PathBuf {
     // verify it's a sha1 hash
     if hash.len() != 40 {
         panic!("Invalid Object Hash");

@@ -1,13 +1,23 @@
-pub const TYPE_REGULAR: i32 = 100644;
-pub const TYPE_EXECUTABLE: i32 = 10755;
-pub const TYPE_SYMLINK: i32 = 120000;
+pub enum FileType {
+    REGULAR = 100644,
+    EXECUTABLE = 10755,
+    SYMLINK = 120000,
+}
 
 pub struct Tree {
-    entries: Vec<TreeEntry>,
+    pub entries: Vec<TreeEntry>,
+}
+
+impl Tree {
+    pub fn new() -> Tree {
+        Tree {
+            entries: Vec::new(),
+        }
+    }
 }
 
 pub struct TreeEntry {
-    r#type: i32,
-    object_name: String,
-    object_hash: String,
+    pub r#type: FileType,
+    pub object_name: String,
+    pub object_hash: String,
 }

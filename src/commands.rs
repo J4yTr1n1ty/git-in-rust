@@ -6,7 +6,10 @@ use std::{
 
 use sha1::{Digest, Sha1};
 
-use crate::utils;
+use crate::{
+    objects::{Tree, TreeEntry},
+    utils,
+};
 
 pub fn init_repository() {
     fs::create_dir(".git").unwrap();
@@ -17,7 +20,7 @@ pub fn init_repository() {
 }
 
 pub fn cat_file_pretty_print(object_hash: &str) {
-    let file_path = utils::get_object_folder_by_hash(object_hash);
+    let file_path = utils::get_object_path_by_hash(object_hash);
 
     let decompressed_string = utils::get_object_contents(file_path);
 
@@ -63,5 +66,30 @@ pub fn hash_object(file_path: &str, write: bool) {
 }
 
 pub fn list_tree(tree_hash: &str, names_only: bool) {
-    todo!()
+    let file_path = utils::get_object_path_by_hash(tree_hash);
+
+    let decompressed_string = utils::get_object_contents(file_path);
+
+    let lines = decompressed_string.lines();
+    let tree = Tree::new();
+    let mut index = 0;
+    for line in lines {
+        if index == 0 {
+            continue;
+        }
+        let parts: Vec<&str> = line.split('\0').collect();
+        if parts.len() != 2 {
+            panic!("Malformed Tree Object");
+        }
+
+        let entry_start: Vec<&str> = parts[0].split_whitespace().collect();
+
+        tree.entries.push(TreeEntry {
+            r#type: todo!(),
+            object_name: entry_start[1].to_string(),
+            object_hash: parts[1].to_string(),
+        });
+
+        index += 1;
+    }
 }
