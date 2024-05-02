@@ -1,8 +1,20 @@
-use std::{fs::File, io::Read, path::Path};
+use std::{
+    fs::{self, File},
+    io::Read,
+    path::Path,
+};
 
 use sha1::{Digest, Sha1};
 
 use crate::utils;
+
+pub fn init_repository() {
+    fs::create_dir(".git").unwrap();
+    fs::create_dir(".git/objects").unwrap();
+    fs::create_dir(".git/refs").unwrap();
+    fs::write(".git/HEAD", "ref: refs/heads/main\n").unwrap();
+    println!("Initialized git directory")
+}
 
 pub fn cat_file_pretty_print(object_hash: &str) {
     let file_path = utils::get_object_folder_by_hash(object_hash);
@@ -48,4 +60,8 @@ pub fn hash_object(file_path: &str, write: bool) {
     }
 
     println!("{}", &hex_hash);
+}
+
+pub fn list_tree(tree_hash: &str, names_only: bool) {
+    todo!()
 }
