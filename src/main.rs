@@ -2,11 +2,13 @@
 use std::env;
 #[allow(unused_imports)]
 use std::fs;
+use std::fs::File;
+use std::io::{stdout, Write};
 use std::path::Path;
 
 use clap::Parser;
 use clap::Subcommand;
-use flate2::read::GzDecoder;
+use flate2::read::ZlibDecoder;
 use std::io::prelude::*;
 
 #[derive(Parser, Debug)]
@@ -48,43 +50,49 @@ fn main() {
                 todo!()
             }
 
-            // verify it's a sha1 hash
-            if object_hash.len() != 40 {
-                panic!("Invalid Object Hash");
-            }
-
-            // build the path
-            let folder = &object_hash[..2].to_string();
-            let rest_of_hash = &object_hash[2..].to_string();
-
-            let root_folder;
-            match find_git_root() {
-                Some(value) => root_folder = value,
-                None => panic!("No git repository found in this or any parent directory."),
-            }
-            // Get the Path to the folder in which the object file lies. Also check if that
-            // directory eixsts.
-            let object_folder_str = format!("{root_folder}/.git/objects/{folder}");
-            let object_folder = Path::new(&object_folder_str);
-            if !object_folder.exists() {
-                panic!("Object folder does not exist. Object Hash ist most likely wrong.")
-            }
-
-            let final_file_path = object_folder.join(rest_of_hash);
-
-            println!(
-                "Path to file: {}",
-                final_file_path.clone().into_os_string().to_string_lossy()
-            );
-            // read the file as bytes
-            let content =
-                fs::read_to_string(final_file_path).expect("Unable to read file contents.");
-            // decompress bytes
-            let decompressed_string = decompress(content);
-            println!("Decompressed Input: {}", decompressed_string);
-            // parse bytes
+            cat_file_pretty_print(&object_hash)
         }
     }
+}
+
+fn cat_file_pretty_print(object_hash: &str) {
+    // verify it's a sha1 hash
+    if object_hash.len() != 40 {
+        panic!("Invalid Object Hash");
+    }
+
+    // build the path
+    let folder = &object_hash[..2].to_string();
+    let rest_of_hash = &object_hash[2..].to_string();
+
+    let root_folder;
+    match find_git_root() {
+        Some(value) => root_folder = value,
+        None => panic!("No git repository found in this or any parent directory."),
+    }
+    // Get the Path to the folder in which the object file lies. Also check if that
+    // directory eixsts.
+    let object_folder_str = format!("{root_folder}/.git/objects/{folder}");
+    let object_folder = Path::new(&object_folder_str);
+    if !object_folder.exists() {
+        panic!("Object folder does not exist. Object Hash ist most likely wrong.")
+    }
+
+    let final_file_path = object_folder.join(rest_of_hash);
+
+    // read the file as bytes
+    let mut file = File::open(&final_file_path).unwrap();
+    let mut content = Vec::new();
+    file.read_to_end(&mut content).unwrap();
+    // decompress bytes
+    let decompressed_string = decompress(content);
+    // split and output
+    let parts: Vec<&str> = decompressed_string.split('\0').collect();
+    if parts.len() < 2 {
+        panic!("Malformed object file.");
+    }
+
+    println!("{}", parts[1]);
 }
 
 fn find_git_root() -> Option<String> {
@@ -108,8 +116,11 @@ fn find_git_root() -> Option<String> {
     }
 }
 
-fn decompress(content: String) -> String {
-    let mut d = GzDecoder::new(content.as_bytes());
+fn decompress(content: Vec<u8>) -> String {
+    let cursor = std::io::Cursor::new(content);
+
+    // Now we can use GzDecoder with the Cursor
+    let mut d = ZlibDecoder::new(cursor);
     let mut s = String::new();
     d.read_to_string(&mut s).unwrap();
     return s;
