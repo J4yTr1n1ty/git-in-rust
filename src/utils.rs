@@ -2,7 +2,6 @@ use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
 use std::env;
-use std::error::Error;
 use std::fs::{self, File, OpenOptions};
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
