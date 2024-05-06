@@ -26,6 +26,6 @@ fn main() {
         arguments::Command::LsTree {
             name_only,
             tree_sha,
-        } => commands::listtree::invoke(&tree_sha, name_only),
+        } => commands::listtree::invoke(&tree_sha, name_only).expect("failed to list tree"),
     }
 }

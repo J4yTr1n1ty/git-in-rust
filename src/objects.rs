@@ -31,6 +31,7 @@ pub struct Object<R> {
     pub expected_size: u64,
     pub reader: R,
 }
+
 impl Object<()> {
     pub(crate) fn read(hash: &str) -> anyhow::Result<Object<impl BufRead>> {
         let r = utils::find_git_root()
